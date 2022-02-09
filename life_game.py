@@ -1,17 +1,19 @@
 import sys
+from time import sleep
 
-g_size = 10
+g_size = 20
+auto = False
 
 grid = [[0 for i in range(g_size)] for i in range(g_size)]
 
 def show_grid(grid=grid):
     for line in grid:
-        [print(" -----", end="") for i in range(g_size)]
-        print("\n|", end="")
+
+        print("\n", end="")
         for cell in line:
-            sys.stdout.buffer.write(f"  {'■' if cell == 1 else '□'}  |".encode("utf-8"))
+            sys.stdout.buffer.write(f"   {'■' if cell == 1 else '□'}  ".encode("utf-8"))
         print()
-    [print(" -----", end="") for i in range(g_size)]
+
     print("\n\n")
 
 
@@ -56,7 +58,7 @@ def change_grid(grid1, grid2):
 
 
 def update():
-    global grid
+    global grid, auto
     temp_grid = [[0 for i in range(g_size)] for i in range(g_size)]
     
     change_grid(temp_grid, grid)
@@ -76,13 +78,31 @@ def update():
             if (cell == 1 and 2 <= nearby_cells(i,j).count(1) <= 3) == False and (cell == 0 and nearby_cells(i,j).count(1) == 3) == False:
                 temp_grid[i][j] = 0
     
+    if temp_grid == grid:
+        auto = False
+    
     change_grid(grid, temp_grid)
     
 
-grid[5][5]  = grid[5][6] = grid[5][4] = 1
-grid[6][5] = 1
+grid[10][9] = grid[10][10] = grid[11][10] = grid[9][10] = grid[9][11] = 1
+
 
 show_grid()
-while input("enter X to stop and anything else to continue: ").lower() != "x":
+user_input = input("enter X to stop, a for auto-scroll and anything else to continue: ").lower()
+while not user_input in ["x","a"]:
     update()
     show_grid()
+    user_input = input("enter X to stop, a for auto-scroll and anything else to continue: ").lower()
+
+if user_input == "a":
+    auto = True
+
+while auto:
+    try:
+        sleep(0.3)
+        update()
+        show_grid()
+        print("press ctrl+C to stop")
+    
+    except KeyboardInterrupt:
+        auto = False
